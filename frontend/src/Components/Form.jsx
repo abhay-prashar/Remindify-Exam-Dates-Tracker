@@ -40,7 +40,7 @@ function Form() {
     }
   
     try{
-      const response = await fetch("http://localhost:5000/api/exams",{
+      const response = await fetch("https://remindify-exam-dates-tracker.onrender.com/api/exams",{
         method: "POST",
         headers:{
           "Content-Type": "application/json",
