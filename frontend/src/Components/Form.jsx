@@ -9,11 +9,13 @@ function Form() {
   const [faAttempt, setFaAttempt] = useState("");
   const [evaluationPhase, setEvaluationPhase] = useState("");
   const [date, setDate] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return; // prevent double submit
     // Determine the final type to send based on selections
     let finalType = type;
     if (type === "Other") {
@@ -38,8 +40,9 @@ function Form() {
       }
       finalType = evaluationPhase === "Final" ? "Evaluation Final" : `Evaluation ${evaluationPhase}`;
     }
-  
+    
     try{
+      setIsSubmitting(true);
       const response = await fetch("https://remindify-exam-dates-tracker.onrender.com/api/exams",{
         method: "POST",
         headers:{
@@ -53,7 +56,7 @@ function Form() {
       }
 
       const data = await response.json();
-      alert(`Added: ${data.subject} ${data.type} on ${data.date}`);
+      // alert(`Added: ${data.subject} ${data.type} on ${data.date}`);
       
       setSubject("");
   setType("End Term Exam");
@@ -66,6 +69,8 @@ function Form() {
 
     }catch (err){
       console.error("Error:", err.message);
+    } finally {
+      setIsSubmitting(false);
     }
 
   };
@@ -91,6 +96,7 @@ function Form() {
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
           className="w-full rounded-lg border border-gray-300 px-4 py-2"
+          disabled={isSubmitting}
           required
         />
 
@@ -99,6 +105,7 @@ function Form() {
           value={type}
           onChange={handleTypeChange}
           className="w-full rounded-lg border border-gray-300 px-4 py-2"
+          disabled={isSubmitting}
         >
           <option value="End Term Exam">End Term Exam</option>
           <option value="Sessional Test">Sessional Test</option>
@@ -113,6 +120,7 @@ function Form() {
             value={sessional}
             onChange={(e) => setSessional(e.target.value)}
             className="w-full rounded-lg border border-gray-300 px-4 py-2"
+            disabled={isSubmitting}
             required
           >
             <option value="">Select ST</option>
@@ -128,6 +136,7 @@ function Form() {
             value={faAttempt}
             onChange={(e) => setFaAttempt(e.target.value)}
             className="w-full rounded-lg border border-gray-300 px-4 py-2"
+            disabled={isSubmitting}
             required
           >
             <option value="">Select FA</option>
@@ -144,6 +153,7 @@ function Form() {
             value={evaluationPhase}
             onChange={(e) => setEvaluationPhase(e.target.value)}
             className="w-full rounded-lg border border-gray-300 px-4 py-2"
+            disabled={isSubmitting}
             required
           >
             <option value="">Select Evaluation</option>
@@ -162,6 +172,7 @@ function Form() {
             value={otherType}
             onChange={(e) => setOtherType(e.target.value)}
             className="w-full rounded-lg border border-gray-300 px-4 py-2"
+            disabled={isSubmitting}
             required
           />
         )}
@@ -172,15 +183,21 @@ function Form() {
           value={date}
           onChange={(e) => setDate(e.target.value)}
           className="w-full rounded-lg border border-gray-300 px-4 py-2"
+          disabled={isSubmitting}
           required
         />
 
         {/* Submit */}
         <button
           type="submit"
-          className="bg-blue-600 text-white rounded-full py-2 px-4 hover:bg-blue-700"
+          disabled={isSubmitting}
+          aria-busy={isSubmitting}
+          className="bg-blue-600 text-white rounded-full py-2 px-5 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
         >
-          Add
+          {isSubmitting && (
+            <i className="inline-block h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true" />
+          )}
+          <span>Add</span>
         </button>
       </form>
     </div>

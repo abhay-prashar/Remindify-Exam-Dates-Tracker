@@ -46,7 +46,10 @@ function Home({ search = "" }) {
         <h2 className="text-3xl font-bold text-gray-800 mb-6">📚 Upcoming Exams</h2>
 
         {loading ? (
-          <p className="text-gray-500 text-center">Loading...</p>
+          <div className="flex flex-col items-center justify-center py-10 text-gray-600">
+            <i className="inline-block h-8 w-8 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin" aria-hidden="true" />
+            <span className="sr-only">Loading</span>
+          </div>
         ) : exams.length === 0 ? (
           <p className="text-gray-500 text-center text-sm">No exams scheduled.</p>
         ) : (
