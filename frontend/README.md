@@ -10,3 +10,20 @@ Currently, two official plugins are available:
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+
+## Configure API Base URL
+
+Set the backend base URL via Vite env in `frontend/.env`:
+
+```
+VITE_API_BASE_URL=https://remindify-exam-dates-tracker.onrender.com
+```
+
+For local development, you can use:
+
+```
+VITE_API_BASE_URL=http://localhost:5000
+```
+
+Rebuild/restart the dev server after changing env values.

@@ -41,3 +41,25 @@ Deployed on:
 - Notifications/reminders for exams
 
 - Dark mode UI
+
+## Admin-only add protection
+
+To prevent everyone from adding exams, the API now requires an admin key for write operations.
+
+Setup:
+
+- In `backend/.env`, add a strong secret key:
+
+	```env
+	ADMIN_KEY=your-strong-secret-here
+	```
+
+- Restart the backend server after changing `.env`.
+
+Usage:
+
+- On the Add Exam form, enter the admin code before submitting. The frontend sends it in an `x-admin-key` header, and the backend validates it. Requests without a valid key receive 403 Forbidden.
+
+Security notes:
+
+- This is a simple shared-secret approach suitable for small private usage. For larger deployments, prefer proper user authentication and roles.

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 function Navbar({ onSearch }) {
   return (
-    <nav className="flex flex-wrap items-center justify-between bg-white px-4 py-2 shadow-sm gap-2">
+    <nav className="mx-4 mt-3 mb-2 flex flex-wrap items-center justify-between bg-white/90 backdrop-blur px-4 py-2 shadow-sm gap-2 rounded-2xl border border-gray-100">
       {/* Logo */}
       <Link to="/" className="flex items-center gap-2">
         <img
@@ -26,7 +26,7 @@ function Navbar({ onSearch }) {
         <input
           type="text"
           placeholder="Search exams..."
-          className="w-full rounded-full border border-gray-300 bg-gray-50 pl-10 pr-4 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          className="w-full rounded-full border border-gray-200 bg-gray-50 pl-10 pr-4 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
           onChange={(e) => onSearch && onSearch(e.target.value)}
         />
       </form>

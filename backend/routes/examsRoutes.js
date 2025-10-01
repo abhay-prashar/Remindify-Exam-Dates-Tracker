@@ -3,6 +3,19 @@ import Exams from "../models/exams.js";
 
 const router = express.Router();
 
+// Simple admin-key middleware to protect write operations
+const requireAdmin = (req, res, next) => {
+    const adminKey = process.env.ADMIN_KEY;
+    if (!adminKey) {
+        return res.status(500).json({ message: "Server admin key not configured" });
+    }
+    const provided = req.header("x-admin-key");
+    if (!provided || provided !== adminKey) {
+        return res.status(403).json({ message: "Forbidden: invalid admin key" });
+    }
+    next();
+};
+
 router.get("/", async (req, res) =>{
     try{
         const exams = await Exams.find().sort({date: 1});
@@ -12,7 +25,7 @@ router.get("/", async (req, res) =>{
     }
 });
 
-router.post("/", async (req, res) =>{
+router.post("/", requireAdmin, async (req, res) =>{
     const { subject, type, date } = req.body;
 
     try{
