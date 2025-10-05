@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+
 function Form() {
   const [subject, setSubject] = useState("");
   const [type, setType] = useState("End Term Exam");
@@ -9,18 +10,16 @@ function Form() {
   const [faAttempt, setFaAttempt] = useState("");
   const [evaluationPhase, setEvaluationPhase] = useState("");
   const [date, setDate] = useState("");
+  const [remark, setRemark] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [adminCode, setAdminCode] = useState("");
+  const [statusMsg, setStatusMsg] = useState("");
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSubmitting) return; // prevent double submit
-    if (!adminCode.trim()) {
-      alert("Admin code is required to add an exam.");
-      return;
-    }
+    // No admin code required for user request
     // Determine the final type to send based on selections
     let finalType = type;
     if (type === "Other") {
@@ -46,41 +45,31 @@ function Form() {
       finalType = evaluationPhase === "Final" ? "Evaluation Final" : `Evaluation ${evaluationPhase}`;
     }
     
-    try{
+    try {
       setIsSubmitting(true);
       const base = import.meta.env.VITE_API_BASE_URL || "";
-      const response = await fetch(`${base}/api/exams`,{
+      const response = await fetch(`${base}/api/exam-requests`,{
         method: "POST",
         headers:{
           "Content-Type": "application/json",
-          "x-admin-key": adminCode.trim(),
         },
-        body: JSON.stringify({subject, type: finalType, date}),
+        body: JSON.stringify({subject, date, description: finalType, remark}),
       });
-
       if(!response.ok){
-        if (response.status === 403) {
-          alert("Invalid admin code. You are not allowed to add exams.");
-          return;
-        }
         const msg = await response.text();
-        throw new Error(msg || "Failed to add exam");
+        setStatusMsg(msg || "Failed to submit request");
+        return;
       }
-
-      const data = await response.json();
-      // alert(`Added: ${data.subject} ${data.type} on ${data.date}`);
-      
+      setStatusMsg("Your request has been submitted and is pending admin approval.");
       setSubject("");
-  setType("End Term Exam");
+      setType("End Term Exam");
       setOtherType("");
-  setSessional("");
-  setFaAttempt("");
-  setEvaluationPhase("");
-      setDate("");
-  setAdminCode("");
-      navigate("/");
-
-    }catch (err){
+      setSessional("");
+      setFaAttempt("");
+      setEvaluationPhase("");
+  setDate("");
+  setRemark("");
+    } catch (err) {
       console.error("Error:", err.message);
     } finally {
       setIsSubmitting(false);
@@ -104,22 +93,14 @@ function Form() {
         <div className="bg-white/90 backdrop-blur rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8">
           <div className="mb-5 text-center">
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900">Add New Exam</h2>
-            <p className="mt-2 text-sm text-gray-500">Admins only. Enter the admin code to publish an exam.</p>
+            <p className="mt-2 text-sm text-gray-500">Submit a request to add an exam. An admin will review and approve it.</p>
           </div>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {/* Admin Code */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Admin code</label>
-              <input
-                type="password"
-                placeholder="Enter admin code"
-                value={adminCode}
-                onChange={(e) => setAdminCode(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 bg-white/90 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                disabled={isSubmitting}
-                required
-              />
-            </div>
+            {/* Status message */}
+            {statusMsg && (
+              <div className="mb-3 text-center text-green-600 font-medium">{statusMsg}</div>
+            )}
 
             {/* Subject */}
             <div>
@@ -240,6 +221,20 @@ function Form() {
               />
             </div>
 
+            {/* Remark (optional) */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Remark (optional)</label>
+              <input
+                type="text"
+                placeholder="Add a message for admin (optional)"
+                value={remark}
+                onChange={(e) => setRemark(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 bg-white/90 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                disabled={isSubmitting}
+                maxLength={200}
+              />
+            </div>
+
             {/* Submit */}
             <div className="pt-2">
               <button
@@ -257,6 +252,7 @@ function Form() {
           </form>
         </div>
       </div>
+
     </div>
   );
 }

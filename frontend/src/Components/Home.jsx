@@ -80,6 +80,10 @@ function Home({ search = "" }) {
           <div className="flex flex-col items-center justify-center py-10 text-gray-600">
             <i className="inline-block h-8 w-8 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin" aria-hidden="true" />
             <span className="sr-only">Loading</span>
+            <p className="mt-4 text-center text-sm text-gray-500 max-w-xs">
+              The server may take 1-2 minutes to start if the site has been inactive.<br />
+              This is due to free hosting limitations. Thank you for your patience!
+            </p>
           </div>
         ) : exams.length === 0 ? (
           <p className="text-gray-500 text-center text-sm">No exams scheduled.</p>

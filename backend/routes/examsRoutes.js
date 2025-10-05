@@ -1,20 +1,11 @@
+
 import express from "express";
 import Exams from "../models/exams.js";
+import { adminAuth } from "../middleware/adminAuth.js";
 
 const router = express.Router();
 
-// Simple admin-key middleware to protect write operations
-const requireAdmin = (req, res, next) => {
-    const adminKey = process.env.ADMIN_KEY;
-    if (!adminKey) {
-        return res.status(500).json({ message: "Server admin key not configured" });
-    }
-    const provided = req.header("x-admin-key");
-    if (!provided || provided !== adminKey) {
-        return res.status(403).json({ message: "Forbidden: invalid admin key" });
-    }
-    next();
-};
+
 
 router.get("/", async (req, res) =>{
     try{
@@ -25,16 +16,45 @@ router.get("/", async (req, res) =>{
     }
 });
 
-router.post("/", requireAdmin, async (req, res) =>{
+// Edit an existing exam (admin only)
+// Create new exam (admin only)
+router.post("/", adminAuth, async (req, res) => {
     const { subject, type, date } = req.body;
-
-    try{
+    try {
         const newExam = new Exams({ subject, type, date });
         await newExam.save();
         res.status(201).json(newExam);
-    }catch (err){
-        res.status(500).json({message: err.message});
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
 });
+
+// Edit an existing exam (admin only)
+router.put("/:id", adminAuth, async (req, res) => {
+    const { subject, type, date } = req.body;
+    try {
+        const updated = await Exams.findByIdAndUpdate(
+            req.params.id,
+            { subject, type, date },
+            { new: true }
+        );
+        if (!updated) return res.status(404).json({ message: "Exam not found" });
+        res.json(updated);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// Delete an exam (admin only)
+router.delete("/:id", adminAuth, async (req, res) => {
+    try {
+        const deleted = await Exams.findByIdAndDelete(req.params.id);
+        if (!deleted) return res.status(404).json({ message: "Exam not found" });
+        res.json({ message: "Exam deleted" });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 
 export default router;
